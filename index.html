@@ -86,7 +86,7 @@
     /* Default: show games when no hash target */
     #games { display: block; }
     .section:target { display: block; }
-    /* Hide games when another section is targeted */
+    /* Hide games when another section is targeted (requires :has(), Chrome 105+/Firefox 121+/Safari 15.4+) */
     main:has(.section:target) > #games:not(:target) { display: none; }
     /* JS-enhanced: when body has .js class, use .active instead */
     .js .section { display: none !important; }
@@ -261,12 +261,12 @@
 
 <header>
   <div class="logo">🔴 Red Portal</div>
-  <nav>
-    <a class="active" href="#games" onclick="showSection('games', this); return false;">🎮 Games</a>
-    <a href="#executor" onclick="showSection('executor', this); return false;">💻 HTML Executor</a>
-    <a href="#fetcher" onclick="showSection('fetcher', this); return false;">🌐 Website Fetcher</a>
-    <a href="#form" onclick="showSection('form', this); return false;">📋 Google Form</a>
-    <a href="#credits" onclick="showSection('credits', this); return false;">🏆 Credits</a>
+  <nav id="mainNav">
+    <a class="active" href="#games" data-section="games">🎮 Games</a>
+    <a href="#executor" data-section="executor">💻 HTML Executor</a>
+    <a href="#fetcher" data-section="fetcher">🌐 Website Fetcher</a>
+    <a href="#form" data-section="form">📋 Google Form</a>
+    <a href="#credits" data-section="credits">🏆 Credits</a>
   </nav>
 </header>
 
@@ -392,6 +392,14 @@
     btn.classList.add('active');
   }
 
+  // Attach nav click handlers
+  document.getElementById('mainNav').addEventListener('click', e => {
+    const link = e.target.closest('a[data-section]');
+    if (!link) return;
+    e.preventDefault();
+    showSection(link.dataset.section, link);
+  });
+
   // Helper: inject <base> as the first child of <head> so it takes
   // precedence over any existing relative <base href="/"> in the page.
   function injectBase(html, url) {
@@ -428,12 +436,12 @@
       });
   }
 
-  // Enhance pre-rendered game links with fetch+blob behavior
-  document.querySelectorAll('#gamesGrid .game-btn').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      openGame(link.href);
-    });
+  // Enhance pre-rendered game links with fetch+blob behavior (event delegation)
+  document.getElementById('gamesGrid').addEventListener('click', e => {
+    const link = e.target.closest('.game-btn');
+    if (!link) return;
+    e.preventDefault();
+    openGame(link.href);
   });
 
   // ── HTML Executor ──
