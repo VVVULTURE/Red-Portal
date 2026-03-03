@@ -1,17 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RedOS</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Nunito:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #FF2E2E;
+      --bg:     #101018;
+      --card:   #18181F;
+      --btn:    #232323;
+      --text:   #E8E8F0;
+      --muted:  #7a7a9a;
+      --glow:   0 0 12px #FF2E2E88;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(16,16,24,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #FF2E2E33;
+      padding: .75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.35rem;
+      color: var(--red);
+      text-shadow: var(--glow);
+      letter-spacing: .05em;
+      flex-shrink: 0;
+    }
+
+    nav { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+    nav button {
+      background: transparent;
+      border: 1px solid #FF2E2E44;
+      color: var(--muted);
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      padding: .45rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all .25s;
+    }
+
+    nav button:hover,
+    nav button.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+      box-shadow: var(--glow);
+    }
+
+    /* ── SECTIONS ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--red);
+      text-shadow: var(--glow);
+      margin-bottom: 1.5rem;
+      letter-spacing: .04em;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid #FF2E2E22;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── GAMES ── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: .75rem;
+    }
+
+    .game-btn {
+      background: var(--btn);
+      border: 1px solid #FF2E2E33;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      padding: .7rem .5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, background .2s;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .game-btn:hover {
+      background: var(--red);
+      box-shadow: var(--glow);
+      transform: scale(1.05);
+      color: #fff;
+    }
+
+    /* ── HTML EXECUTOR ── */
+    textarea {
+      width: 100%;
+      background: #0c0c14;
+      border: 1px solid #FF2E2E33;
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      padding: .75rem;
+      resize: vertical;
+      min-height: 180px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    textarea:focus { border-color: var(--red); }
+
+    input[type="file"],
+    input[type="url"],
+    input[type="text"] {
+      width: 100%;
+      background: #0c0c14;
+      border: 1px solid #FF2E2E33;
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: .95rem;
+      padding: .65rem .85rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    input[type="url"]:focus,
+    input[type="text"]:focus { border-color: var(--red); }
+
+    label.section-label {
+      display: block;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: .4rem;
+      font-weight: 600;
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    .btn-primary {
+      background: var(--red);
+      border: none;
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      padding: .65rem 1.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, filter .2s;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.04);
+      box-shadow: var(--glow);
+      filter: brightness(1.1);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #FF2E2E22;
+      margin: 1.25rem 0;
+    }
+
+    /* ── STATUS ── */
+    .status {
+      margin-top: .75rem;
+      font-size: .88rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
+    /* ── GOOGLE FORM ── */
+    .form-iframe-wrap {
+      position: relative;
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #FF2E2E33;
+    }
+
+    .form-iframe-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 680px;
+      border: none;
+    }
+
+    .form-open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section.active { animation: fadeIn .3s ease; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 500px) {
+      .games-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to RedOS</h1>
-    <h2>Available Apps</h2>
-    <ul>
-        <li><a href="/games">Games</a></li>
-        <li><a href="/html-executor">HTML Executor</a></li>
-        <li><a href="/website-fetcher">Website Fetcher</a></li>
-    </ul>
+
+<header>
+  <div class="logo">🔴 Red Portal</div>
+  <nav>
+    <button class="active" onclick="showSection('games', this)">🎮 Games</button>
+    <button onclick="showSection('executor', this)">💻 HTML Executor</button>
+    <button onclick="showSection('fetcher', this)">🌐 Website Fetcher</button>
+    <button onclick="showSection('form', this)">📋 Google Form</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ═══════════════ GAMES ═══════════════ -->
+  <section id="games" class="section active">
+    <h2>🎮 Games</h2>
+    <p class="status" id="gamesStatus" style="margin-bottom:.75rem;"></p>
+    <div class="card">
+      <div class="games-grid" id="gamesGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ HTML EXECUTOR ═══════════════ -->
+  <section id="executor" class="section">
+    <h2>💻 HTML Executor</h2>
+
+    <div class="card">
+      <div class="field">
+        <label class="section-label" for="htmlInput">Type or paste HTML / JS / CSS</label>
+        <textarea id="htmlInput" placeholder="<h1>Hello World!</h1>&#10;<script>alert('hi');<\/script>"></textarea>
+      </div>
+      <button class="btn-primary" onclick="executeTyped()">▶ Run HTML</button>
+      <p class="status" id="execTypedStatus"></p>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label class="section-label" for="fileInput">Upload an HTML file</label>
+        <input type="file" id="fileInput" accept=".html,.htm,.xhtml" />
+      </div>
+      <button class="btn-primary" onclick="executeFile()">📂 Open File</button>
+      <p class="status" id="execFileStatus"></p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ WEBSITE FETCHER ═══════════════ -->
+  <section id="fetcher" class="section">
+    <h2>🌐 Website Fetcher</h2>
+    <div class="card">
+      <div class="field">
+        <label class="section-label" for="urlInput">Enter a URL to fetch</label>
+        <input type="url" id="urlInput" placeholder="https://example.com" />
+      </div>
+      <button class="btn-primary" onclick="fetchSite()">🔗 Fetch &amp; Open</button>
+      <p class="status" id="fetchStatus"></p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ GOOGLE FORM ═══════════════ -->
+  <section id="form" class="section">
+    <h2>📋 Google Form</h2>
+    <div class="card">
+      <div class="form-open-btn">
+        <button class="btn-primary" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScaYcFE6kxkrrnx09OX8QLJZluyDLUeH65pDbRa-I2DapeQ7A/viewform?usp=dialog','_blank')">
+          🔗 Open Form in New Tab
+        </button>
+      </div>
+      <div class="form-iframe-wrap">
+        <iframe
+          src="https://docs.google.com/forms/d/e/1FAIpQLScaYcFE6kxkrrnx09OX8QLJZluyDLUeH65pDbRa-I2DapeQ7A/viewform?embedded=true"
+          title="Google Form"
+          loading="lazy">
+          Loading…
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Navigation ──
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── Games data ──
+  const GAMES = [
+    { name: 'Cookie Clicker',               url: 'https://cookieclicker-nu.vercel.app' },
+    { name: 'Drive Mad',                    url: 'https://drive-mad1.vercel.app' },
+    { name: 'Eaglercraft 1.8',              url: 'https://eagler1-8-8-wasm-gc.vercel.app' },
+    { name: 'Eaglercraft 1.12',             url: 'https://math-class-school.vercel.app' },
+    { name: 'House of Hazards',             url: 'https://house-of-hazards-ashy.vercel.app' },
+    { name: 'Dadish 1',                     url: 'https://dadish.vercel.app' },
+    { name: 'Dadish 2',                     url: 'https://dadish2.vercel.app/' },
+    { name: 'Stickman Hook',                url: 'https://stickman-hook-five.vercel.app' },
+    { name: 'Bitlife',                      url: 'https://bitlife1.vercel.app' },
+    { name: 'Getaway Shootout',             url: 'https://getaway-shootout-ten.vercel.app/' },
+    { name: 'Rooftop Snipers',              url: 'https://rooftop-snipers-rose.vercel.app/' },
+    { name: 'Basket Random',                url: 'https://basket-random-ph7z.vercel.app/' },
+    { name: 'GunSpin',                      url: 'https://gun-spin-dusky.vercel.app/' },
+    { name: 'Slope',                        url: 'https://slope-game-fsq3.vercel.app/' },
+    { name: 'Bongo Cat',                    url: 'https://bongo-cat-lyart.vercel.app/' },
+    { name: 'Snow Rider 3D',                url: 'https://snow-rider3-d-five.vercel.app/' },
+    { name: 'Small World Cup',              url: 'https://a-small-world-cup-eight.vercel.app/' },
+    { name: 'Vex 5',                        url: 'https://vex5-sigma.vercel.app/' },
+    { name: 'Vex 6',                        url: 'https://vex6-nine.vercel.app/' },
+    { name: 'Block Blast',                  url: 'https://block-blast-tau.vercel.app/' },
+    { name: 'Slowroads.io',                 url: 'https://slow-roads-psi.vercel.app/' },
+    { name: 'Amazing Strange Rope Police',  url: 'https://amazing-strange-rope-police-eight.vercel.app/' },
+    { name: 'Geometry Dash (Scratch)',      url: 'https://gd-ten-jet.vercel.app/' },
+    { name: 'Flappy Bird',                  url: 'https://flappy-bird-three-nu.vercel.app/' },
+    { name: 'EmulatorJS',                   url: 'https://demo.emulatorjs.org' },
+    { name: 'Bromine',                      url: 'https://bromine-mu.vercel.app/' },
+    { name: 'Custom CORS Proxy',            url: 'https://custom-cors-proxy.vercel.app/' },
+  ];
+
+  // Build game buttons
+  (function buildGames() {
+    const grid = document.getElementById('gamesGrid');
+    GAMES.forEach(g => {
+      const btn = document.createElement('button');
+      btn.className = 'game-btn';
+      btn.textContent = g.name;
+      btn.addEventListener('click', () => openGame(g.url));
+      grid.appendChild(btn);
+    });
+  })();
+
+  // Helper: compute a proper base URL from a full URL
+  function baseFor(url) {
+    return url.substring(0, url.lastIndexOf('/') + 1);
+  }
+
+  // Helper: inject <base> only when one doesn't already exist
+  function injectBase(html, base) {
+    if (/<base\s/i.test(html)) return html;
+    return html.replace(/<head(\s[^>]*)?>/, match => match + '\n<base href="' + base + '">');
+  }
+
+  // Open a game via fetch+blob so relative assets resolve correctly
+  function openGame(url) {
+    const win = window.open('', '_blank');
+    if (!win) {
+      document.getElementById('gamesStatus').textContent = '❌ Pop-up blocked — please allow pop-ups for this site.';
+      return;
+    }
+    document.getElementById('gamesStatus').textContent = '';
+    win.document.write('<html><body style="background:#101018;color:#E8E8F0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;"><p>Loading...</p></body></html>');
+    win.document.close();
+
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(html => {
+        const injected = injectBase(html, baseFor(url));
+        const blob = new Blob([injected], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        win.location.replace(blobUrl);
+      })
+      .catch(err => {
+        win.document.open();
+        win.document.write('<html><body style="background:#101018;color:#E8E8F0;font-family:sans-serif;padding:2rem;"><h2 style="color:#FF2E2E;">Failed to load game</h2><p>' + err + '</p><p><a style="color:#FF2E2E;" href="' + url + '" target="_blank">Open directly</a></p></body></html>');
+        win.document.close();
+      });
+  }
+
+  // ── HTML Executor ──
+  function executeTyped() {
+    const code = document.getElementById('htmlInput').value.trim();
+    const status = document.getElementById('execTypedStatus');
+    if (!code) { status.textContent = '⚠ Please enter some HTML first.'; return; }
+    status.textContent = '';
+    const blob = new Blob([code], { type: 'text/html' });
+    window.open(URL.createObjectURL(blob), '_blank');
+  }
+
+  function executeFile() {
+    const input = document.getElementById('fileInput');
+    const status = document.getElementById('execFileStatus');
+    if (!input.files.length) { status.textContent = '⚠ Please select an HTML file first.'; return; }
+    status.textContent = '';
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      const blob = new Blob([e.target.result], { type: 'text/html' });
+      window.open(URL.createObjectURL(blob), '_blank');
+    };
+    reader.readAsText(file);
+  }
+
+  // ── Website Fetcher ──
+  function fetchSite() {
+    let url = document.getElementById('urlInput').value.trim();
+    const status = document.getElementById('fetchStatus');
+
+    if (!url) { status.textContent = '⚠ Please enter a URL.'; return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+    status.textContent = '⏳ Fetching...';
+
+    const win = window.open('', '_blank');
+    if (!win) {
+      status.textContent = '❌ Pop-up blocked — please allow pop-ups.';
+      return;
+    }
+
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(html => {
+        const injected = injectBase(html, baseFor(url));
+        const blob = new Blob([injected], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        win.location.replace(blobUrl);
+        status.textContent = '✅ Opened!';
+      })
+      .catch(err => {
+        win.document.open();
+        win.document.write('<html><body style="background:#101018;color:#E8E8F0;font-family:sans-serif;padding:2rem;"><h2 style="color:#FF2E2E;">Failed to fetch</h2><p>' + err + '</p><p><a style="color:#FF2E2E;" href="' + url + '" target="_blank">Open directly</a></p></body></html>');
+        win.document.close();
+        status.textContent = '❌ Failed to fetch: ' + err;
+      });
+  }
+
+  // Allow pressing Enter in the URL input
+  document.getElementById('urlInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchSite();
+  });
+</script>
+
 </body>
 </html>
