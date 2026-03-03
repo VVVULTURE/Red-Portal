@@ -379,15 +379,11 @@
     });
   })();
 
-  // Helper: compute a proper base URL from a full URL
-  function baseFor(url) {
-    return url.substring(0, url.lastIndexOf('/') + 1);
-  }
-
-  // Helper: inject <base> only when one doesn't already exist
-  function injectBase(html, base) {
-    if (/<base\s/i.test(html)) return html;
-    return html.replace(/<head(\s[^>]*)?>/, match => match + '\n<base href="' + base + '">');
+  // Helper: inject <base> as the first child of <head> so it takes
+  // precedence over any existing relative <base href="/"> in the page.
+  function injectBase(html, url) {
+    const base = url.replace(/\/?$/, '/');
+    return html.replace(/<head[^>]*>/i, match => `${match}<base href="${base}">`);
   }
 
   // Open a game via fetch+blob so relative assets resolve correctly
@@ -407,7 +403,7 @@
         return r.text();
       })
       .then(html => {
-        const injected = injectBase(html, baseFor(url));
+        const injected = injectBase(html, url);
         const blob = new Blob([injected], { type: 'text/html' });
         const blobUrl = URL.createObjectURL(blob);
         win.location.replace(blobUrl);
@@ -465,7 +461,7 @@
         return r.text();
       })
       .then(html => {
-        const injected = injectBase(html, baseFor(url));
+        const injected = injectBase(html, url);
         const blob = new Blob([injected], { type: 'text/html' });
         const blobUrl = URL.createObjectURL(blob);
         win.location.replace(blobUrl);
