@@ -311,13 +311,14 @@
   <!-- ═══════════════ HTML EXECUTOR ═══════════════ -->
   <section id="executor" class="section">
     <h2>💻 HTML Executor</h2>
+    <noscript><p class="status">⚠ JavaScript is required for the HTML Executor.</p></noscript>
 
     <div class="card">
       <div class="field">
         <label class="section-label" for="htmlInput">Type or paste HTML / JS / CSS</label>
         <textarea id="htmlInput" placeholder="<h1>Hello World!</h1>&#10;<script>alert('hi');<\/script>"></textarea>
       </div>
-      <button class="btn-primary" onclick="executeTyped()">▶ Run HTML</button>
+      <button class="btn-primary" id="runHtmlBtn">▶ Run HTML</button>
       <p class="status" id="execTypedStatus"></p>
     </div>
 
@@ -326,7 +327,7 @@
         <label class="section-label" for="fileInput">Upload an HTML file</label>
         <input type="file" id="fileInput" accept=".html,.htm,.xhtml" />
       </div>
-      <button class="btn-primary" onclick="executeFile()">📂 Open File</button>
+      <button class="btn-primary" id="openFileBtn">📂 Open File</button>
       <p class="status" id="execFileStatus"></p>
     </div>
   </section>
@@ -334,12 +335,13 @@
   <!-- ═══════════════ WEBSITE FETCHER ═══════════════ -->
   <section id="fetcher" class="section">
     <h2>🌐 Website Fetcher</h2>
+    <noscript><p class="status">⚠ JavaScript is required for the Website Fetcher.</p></noscript>
     <div class="card">
       <div class="field">
         <label class="section-label" for="urlInput">Enter a URL to fetch</label>
         <input type="url" id="urlInput" placeholder="https://example.com" />
       </div>
-      <button class="btn-primary" onclick="fetchSite()">🔗 Fetch &amp; Open</button>
+      <button class="btn-primary" id="fetchBtn">🔗 Fetch &amp; Open</button>
       <p class="status" id="fetchStatus"></p>
     </div>
   </section>
@@ -349,9 +351,9 @@
     <h2>📋 Google Form</h2>
     <div class="card">
       <div class="form-open-btn">
-        <button class="btn-primary" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScaYcFE6kxkrrnx09OX8QLJZluyDLUeH65pDbRa-I2DapeQ7A/viewform?usp=dialog','_blank')">
+        <a class="btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScaYcFE6kxkrrnx09OX8QLJZluyDLUeH65pDbRa-I2DapeQ7A/viewform?usp=dialog" target="_blank" rel="noopener">
           🔗 Open Form in New Tab
-        </button>
+        </a>
       </div>
       <div class="form-iframe-wrap">
         <iframe
@@ -468,6 +470,10 @@
     reader.readAsText(file);
   }
 
+  // Attach executor button handlers
+  document.getElementById('runHtmlBtn').addEventListener('click', executeTyped);
+  document.getElementById('openFileBtn').addEventListener('click', executeFile);
+
   // ── Website Fetcher ──
   function fetchSite() {
     let url = document.getElementById('urlInput').value.trim();
@@ -503,6 +509,9 @@
         status.textContent = '❌ Failed to fetch: ' + err;
       });
   }
+
+  // Attach fetcher button handler
+  document.getElementById('fetchBtn').addEventListener('click', fetchSite);
 
   // Allow pressing Enter in the URL input
   document.getElementById('urlInput').addEventListener('keydown', e => {
