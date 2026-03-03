@@ -56,7 +56,7 @@
 
     nav { display: flex; gap: .5rem; flex-wrap: wrap; }
 
-    nav button {
+    nav a {
       background: transparent;
       border: 1px solid #FF2E2E44;
       color: var(--muted);
@@ -67,10 +67,11 @@
       border-radius: 6px;
       cursor: pointer;
       transition: all .25s;
+      text-decoration: none;
     }
 
-    nav button:hover,
-    nav button.active {
+    nav a:hover,
+    nav a.active {
       background: var(--red);
       border-color: var(--red);
       color: #fff;
@@ -80,8 +81,16 @@
     /* ── SECTIONS ── */
     main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem; }
 
+    /* CSS-only tab switching via :target (no-JS fallback) */
     .section { display: none; }
-    .section.active { display: block; }
+    /* Default: show games when no hash target */
+    #games { display: block; }
+    .section:target { display: block; }
+    /* Hide games when another section is targeted */
+    main:has(.section:target) > #games:not(:target) { display: none; }
+    /* JS-enhanced: when body has .js class, use .active instead */
+    .js .section { display: none !important; }
+    .js .section.active { display: block !important; }
 
     h2 {
       font-family: 'Orbitron', sans-serif;
@@ -121,6 +130,8 @@
       transition: transform .2s, box-shadow .2s, background .2s;
       text-align: center;
       word-break: break-word;
+      text-decoration: none;
+      display: block;
     }
 
     .game-btn:hover {
@@ -251,11 +262,11 @@
 <header>
   <div class="logo">🔴 Red Portal</div>
   <nav>
-    <button class="active" onclick="showSection('games', this)">🎮 Games</button>
-    <button onclick="showSection('executor', this)">💻 HTML Executor</button>
-    <button onclick="showSection('fetcher', this)">🌐 Website Fetcher</button>
-    <button onclick="showSection('form', this)">📋 Google Form</button>
-    <button onclick="showSection('credits', this)">🏆 Credits</button>
+    <a class="active" href="#games" onclick="showSection('games', this); return false;">🎮 Games</a>
+    <a href="#executor" onclick="showSection('executor', this); return false;">💻 HTML Executor</a>
+    <a href="#fetcher" onclick="showSection('fetcher', this); return false;">🌐 Website Fetcher</a>
+    <a href="#form" onclick="showSection('form', this); return false;">📋 Google Form</a>
+    <a href="#credits" onclick="showSection('credits', this); return false;">🏆 Credits</a>
   </nav>
 </header>
 
@@ -266,7 +277,34 @@
     <h2>🎮 Games</h2>
     <p class="status" id="gamesStatus" style="margin-bottom:.75rem;"></p>
     <div class="card">
-      <div class="games-grid" id="gamesGrid"></div>
+      <div class="games-grid" id="gamesGrid">
+        <a class="game-btn" href="https://cookieclicker-nu.vercel.app" target="_blank" rel="noopener">Cookie Clicker</a>
+        <a class="game-btn" href="https://drive-mad1.vercel.app" target="_blank" rel="noopener">Drive Mad</a>
+        <a class="game-btn" href="https://eagler1-8-8-wasm-gc.vercel.app" target="_blank" rel="noopener">Eaglercraft 1.8</a>
+        <a class="game-btn" href="https://math-class-school.vercel.app" target="_blank" rel="noopener">Eaglercraft 1.12</a>
+        <a class="game-btn" href="https://house-of-hazards-ashy.vercel.app" target="_blank" rel="noopener">House of Hazards</a>
+        <a class="game-btn" href="https://dadish.vercel.app" target="_blank" rel="noopener">Dadish 1</a>
+        <a class="game-btn" href="https://dadish2.vercel.app/" target="_blank" rel="noopener">Dadish 2</a>
+        <a class="game-btn" href="https://stickman-hook-five.vercel.app" target="_blank" rel="noopener">Stickman Hook</a>
+        <a class="game-btn" href="https://bitlife1.vercel.app" target="_blank" rel="noopener">Bitlife</a>
+        <a class="game-btn" href="https://getaway-shootout-ten.vercel.app/" target="_blank" rel="noopener">Getaway Shootout</a>
+        <a class="game-btn" href="https://rooftop-snipers-rose.vercel.app/" target="_blank" rel="noopener">Rooftop Snipers</a>
+        <a class="game-btn" href="https://basket-random-ph7z.vercel.app/" target="_blank" rel="noopener">Basket Random</a>
+        <a class="game-btn" href="https://gun-spin-dusky.vercel.app/" target="_blank" rel="noopener">GunSpin</a>
+        <a class="game-btn" href="https://slope-game-fsq3.vercel.app/" target="_blank" rel="noopener">Slope</a>
+        <a class="game-btn" href="https://bongo-cat-lyart.vercel.app/" target="_blank" rel="noopener">Bongo Cat</a>
+        <a class="game-btn" href="https://snow-rider3-d-five.vercel.app/" target="_blank" rel="noopener">Snow Rider 3D</a>
+        <a class="game-btn" href="https://a-small-world-cup-eight.vercel.app/" target="_blank" rel="noopener">Small World Cup</a>
+        <a class="game-btn" href="https://vex5-sigma.vercel.app/" target="_blank" rel="noopener">Vex 5</a>
+        <a class="game-btn" href="https://vex6-nine.vercel.app/" target="_blank" rel="noopener">Vex 6</a>
+        <a class="game-btn" href="https://block-blast-tau.vercel.app/" target="_blank" rel="noopener">Block Blast</a>
+        <a class="game-btn" href="https://slow-roads-psi.vercel.app/" target="_blank" rel="noopener">Slowroads.io</a>
+        <a class="game-btn" href="https://amazing-strange-rope-police-eight.vercel.app/" target="_blank" rel="noopener">Amazing Strange Rope Police</a>
+        <a class="game-btn" href="https://gd-ten-jet.vercel.app/" target="_blank" rel="noopener">Geometry Dash (Scratch)</a>
+        <a class="game-btn" href="https://flappy-bird-three-nu.vercel.app/" target="_blank" rel="noopener">Flappy Bird</a>
+        <a class="game-btn" href="https://demo.emulatorjs.org" target="_blank" rel="noopener">EmulatorJS</a>
+        <a class="game-btn" href="https://hollow-knight-red.vercel.app/" target="_blank" rel="noopener">Hollow Knight</a>
+      </div>
     </div>
   </section>
 
@@ -343,55 +381,16 @@
 </main>
 
 <script>
+  // Enable JS-enhanced mode
+  document.body.classList.add('js');
+
   // ── Navigation ──
   function showSection(id, btn) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     btn.classList.add('active');
   }
-
-  // ── Games data ──
-  const GAMES = [
-    { name: 'Cookie Clicker',               url: 'https://cookieclicker-nu.vercel.app' },
-    { name: 'Drive Mad',                    url: 'https://drive-mad1.vercel.app' },
-    { name: 'Eaglercraft 1.8',              url: 'https://eagler1-8-8-wasm-gc.vercel.app' },
-    { name: 'Eaglercraft 1.12',             url: 'https://math-class-school.vercel.app' },
-    { name: 'House of Hazards',             url: 'https://house-of-hazards-ashy.vercel.app' },
-    { name: 'Dadish 1',                     url: 'https://dadish.vercel.app' },
-    { name: 'Dadish 2',                     url: 'https://dadish2.vercel.app/' },
-    { name: 'Stickman Hook',                url: 'https://stickman-hook-five.vercel.app' },
-    { name: 'Bitlife',                      url: 'https://bitlife1.vercel.app' },
-    { name: 'Getaway Shootout',             url: 'https://getaway-shootout-ten.vercel.app/' },
-    { name: 'Rooftop Snipers',              url: 'https://rooftop-snipers-rose.vercel.app/' },
-    { name: 'Basket Random',                url: 'https://basket-random-ph7z.vercel.app/' },
-    { name: 'GunSpin',                      url: 'https://gun-spin-dusky.vercel.app/' },
-    { name: 'Slope',                        url: 'https://slope-game-fsq3.vercel.app/' },
-    { name: 'Bongo Cat',                    url: 'https://bongo-cat-lyart.vercel.app/' },
-    { name: 'Snow Rider 3D',                url: 'https://snow-rider3-d-five.vercel.app/' },
-    { name: 'Small World Cup',              url: 'https://a-small-world-cup-eight.vercel.app/' },
-    { name: 'Vex 5',                        url: 'https://vex5-sigma.vercel.app/' },
-    { name: 'Vex 6',                        url: 'https://vex6-nine.vercel.app/' },
-    { name: 'Block Blast',                  url: 'https://block-blast-tau.vercel.app/' },
-    { name: 'Slowroads.io',                 url: 'https://slow-roads-psi.vercel.app/' },
-    { name: 'Amazing Strange Rope Police',  url: 'https://amazing-strange-rope-police-eight.vercel.app/' },
-    { name: 'Geometry Dash (Scratch)',      url: 'https://gd-ten-jet.vercel.app/' },
-    { name: 'Flappy Bird',                  url: 'https://flappy-bird-three-nu.vercel.app/' },
-    { name: 'EmulatorJS',                   url: 'https://demo.emulatorjs.org' },
-    { name: 'Hollow Knight',                url: 'https://hollow-knight-red.vercel.app/' },
-  ];
-
-  // Build game buttons
-  (function buildGames() {
-    const grid = document.getElementById('gamesGrid');
-    GAMES.forEach(g => {
-      const btn = document.createElement('button');
-      btn.className = 'game-btn';
-      btn.textContent = g.name;
-      btn.addEventListener('click', () => openGame(g.url));
-      grid.appendChild(btn);
-    });
-  })();
 
   // Helper: inject <base> as the first child of <head> so it takes
   // precedence over any existing relative <base href="/"> in the page.
@@ -428,6 +427,14 @@
         win.document.close();
       });
   }
+
+  // Enhance pre-rendered game links with fetch+blob behavior
+  document.querySelectorAll('#gamesGrid .game-btn').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      openGame(link.href);
+    });
+  });
 
   // ── HTML Executor ──
   function executeTyped() {
