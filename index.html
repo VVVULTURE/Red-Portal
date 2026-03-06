@@ -317,7 +317,7 @@
         <label class="section-label" for="htmlInput">Type or paste HTML / JS / CSS</label>
         <textarea id="htmlInput" placeholder="<h1>Hello World!</h1>&#10;<script>alert('hi');<\/script>"></textarea>
       </div>
-      <button class="btn-primary" onclick="executeTyped()">▶ Run HTML</button>
+      <button class="btn-primary" id="btnRunHtml">▶ Run HTML</button>
       <p class="status" id="execTypedStatus"></p>
     </div>
 
@@ -326,7 +326,7 @@
         <label class="section-label" for="fileInput">Upload an HTML file</label>
         <input type="file" id="fileInput" accept=".html,.htm,.xhtml" />
       </div>
-      <button class="btn-primary" onclick="executeFile()">📂 Open File</button>
+      <button class="btn-primary" id="btnOpenFile">📂 Open File</button>
       <p class="status" id="execFileStatus"></p>
     </div>
   </section>
@@ -339,7 +339,7 @@
         <label class="section-label" for="urlInput">Enter a URL to fetch</label>
         <input type="url" id="urlInput" placeholder="https://example.com" />
       </div>
-      <button class="btn-primary" onclick="fetchSite()">🔗 Fetch &amp; Open</button>
+      <button class="btn-primary" id="btnFetchSite">🔗 Fetch &amp; Open</button>
       <p class="status" id="fetchStatus"></p>
     </div>
   </section>
@@ -349,7 +349,7 @@
     <h2>📋 Google Form</h2>
     <div class="card">
       <div class="form-open-btn">
-        <button class="btn-primary" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScaYcFE6kxkrrnx09OX8QLJZluyDLUeH65pDbRa-I2DapeQ7A/viewform?usp=dialog','_blank')">
+        <button class="btn-primary" id="btnOpenForm">
           🔗 Open Form in New Tab
         </button>
       </div>
@@ -407,6 +407,14 @@
     return html.replace(/<head[^>]*>/i, match => `${match}<base href="${base}">`);
   }
 
+  // Helper: wrap a URL in a full-page iframe blob (fallback when fetch is blocked)
+  function openAsIframeBlob(win, url) {
+    var safeUrl = url.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    var iframeHtml = '<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden}iframe{width:100vw;height:100vh;border:none}</style></head><body><iframe src="' + safeUrl + '" allowfullscreen></iframe></body></html>';
+    var blob = new Blob([iframeHtml], { type: 'text/html' });
+    win.location.replace(URL.createObjectURL(blob));
+  }
+
   // Open a game via fetch+blob so relative assets resolve correctly
   function openGame(url) {
     const win = window.open('', '_blank');
@@ -429,10 +437,11 @@
         const blobUrl = URL.createObjectURL(blob);
         win.location.replace(blobUrl);
       })
-      .catch(err => {
-        win.document.open();
-        win.document.write('<html><body style="background:#101018;color:#E8E8F0;font-family:sans-serif;padding:2rem;"><h2 style="color:#FF2E2E;">Failed to load game</h2><p>' + err + '</p><p><a style="color:#FF2E2E;" href="' + url + '" target="_blank">Open directly</a></p></body></html>');
-        win.document.close();
+      .catch(function() {
+        // Fallback: wrap the game URL in an iframe blob so it still
+        // opens under a blob: URL even when fetch is blocked (e.g. from
+        // a blob: or null origin).
+        openAsIframeBlob(win, url);
       });
   }
 
@@ -496,13 +505,20 @@
         win.location.replace(blobUrl);
         status.textContent = '✅ Opened!';
       })
-      .catch(err => {
-        win.document.open();
-        win.document.write('<html><body style="background:#101018;color:#E8E8F0;font-family:sans-serif;padding:2rem;"><h2 style="color:#FF2E2E;">Failed to fetch</h2><p>' + err + '</p><p><a style="color:#FF2E2E;" href="' + url + '" target="_blank">Open directly</a></p></body></html>');
-        win.document.close();
-        status.textContent = '❌ Failed to fetch: ' + err;
+      .catch(function() {
+        // Fallback: wrap the URL in an iframe blob
+        openAsIframeBlob(win, url);
+        status.textContent = '✅ Opened (via iframe fallback)!';
       });
   }
+
+  // ── Attach button handlers (avoids inline onclick for blob-context compat) ──
+  document.getElementById('btnRunHtml').addEventListener('click', executeTyped);
+  document.getElementById('btnOpenFile').addEventListener('click', executeFile);
+  document.getElementById('btnFetchSite').addEventListener('click', fetchSite);
+  document.getElementById('btnOpenForm').addEventListener('click', function() {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLScaYcFE6kxkrrnx09OX8QLJZluyDLUeH65pDbRa-I2DapeQ7A/viewform?usp=dialog', '_blank');
+  });
 
   // Allow pressing Enter in the URL input
   document.getElementById('urlInput').addEventListener('keydown', e => {
