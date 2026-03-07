@@ -275,7 +275,6 @@
   <!-- ═══════════════ GAMES ═══════════════ -->
   <section id="games" class="section active">
     <h2>🎮 Games</h2>
-    <p class="status" id="gamesStatus" style="margin-bottom:.75rem;"></p>
     <div class="card">
       <div class="games-grid" id="gamesGrid">
         <a class="game-btn" href="https://cookieclicker-nu.vercel.app" target="_blank" rel="noopener">Cookie Clicker</a>
@@ -304,6 +303,8 @@
         <a class="game-btn" href="https://flappy-bird-three-nu.vercel.app/" target="_blank" rel="noopener">Flappy Bird</a>
         <a class="game-btn" href="https://demo.emulatorjs.org" target="_blank" rel="noopener">EmulatorJS</a>
         <a class="game-btn" href="https://hollow-knight-red.vercel.app/" target="_blank" rel="noopener">Hollow Knight</a>
+        <a class="game-btn" href="https://bromine-mu.vercel.app/" target="_blank" rel="noopener">Bromine</a>
+        <a class="game-btn" href="https://custom-cors-proxy.vercel.app/" target="_blank" rel="noopener">Custom CORS Proxy</a>
       </div>
     </div>
   </section>
@@ -407,41 +408,34 @@
     return html.replace(/<head[^>]*>/i, match => `${match}<base href="${base}">`);
   }
 
-  // Helper: wrap a URL in a full-page iframe blob (fallback when fetch is blocked)
-  function openAsIframeBlob(win, url) {
-    var safeUrl = url.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    var iframeHtml = '<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden}iframe{width:100vw;height:100vh;border:none}</style></head><body><iframe src="' + safeUrl + '" allowfullscreen></iframe></body></html>';
-    var blob = new Blob([iframeHtml], { type: 'text/html' });
-    win.location.replace(URL.createObjectURL(blob));
-  }
-
   // Open a game via fetch+blob so relative assets resolve correctly
   function openGame(url) {
-    const win = window.open('', '_blank');
+    const win = window.open();
     if (!win) {
-      document.getElementById('gamesStatus').textContent = '❌ Pop-up blocked — please allow pop-ups for this site.';
+      alert('Popup blocked! Please allow popups for this site.');
       return;
     }
-    document.getElementById('gamesStatus').textContent = '';
-    win.document.write('<html><body style="background:#101018;color:#E8E8F0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;"><p>Loading...</p></body></html>');
-    win.document.close();
-
+    if (!url) {
+      win.document.write('<h1>Please configure the button with a real link!</h1>');
+      win.document.close();
+      return;
+    }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
     fetch(url)
-      .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
+      .then(res => {
+        if (!res.ok) throw new Error('Fetch failed. Status: ' + res.status);
+        return res.text();
       })
       .then(html => {
-        const injected = injectBase(html, url);
-        const blob = new Blob([injected], { type: 'text/html' });
+        const fixedHtml = injectBase(html, url);
+        const blob = new Blob([fixedHtml], { type: "text/html" });
         const blobUrl = URL.createObjectURL(blob);
-        win.location.replace(blobUrl);
+        win.location = blobUrl;
       })
-      .catch(function() {
-        // Fallback: wrap the game URL in an iframe blob so it still
-        // opens under a blob: URL even when fetch is blocked (e.g. from
-        // a blob: or null origin).
-        openAsIframeBlob(win, url);
+      .catch(e => {
+        win.document.open();
+        win.document.write('<h1>Failed to fetch content.</h1><pre>' + e.message + '</pre>');
+        win.document.close();
       });
   }
 
@@ -455,61 +449,85 @@
 
   // ── HTML Executor ──
   function executeTyped() {
-    const code = document.getElementById('htmlInput').value.trim();
     const status = document.getElementById('execTypedStatus');
-    if (!code) { status.textContent = '⚠ Please enter some HTML first.'; return; }
-    status.textContent = '';
-    const blob = new Blob([code], { type: 'text/html' });
-    window.open(URL.createObjectURL(blob), '_blank');
+    const html = document.getElementById('htmlInput').value;
+    if (!html.trim()) {
+      status.textContent = "Please enter HTML or code to execute.";
+      return;
+    }
+    const blob = new Blob([html], { type: "text/html" });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, "_blank");
+    status.textContent = "Executed in new tab.";
+    setTimeout(() => { status.textContent = ""; }, 3000);
   }
 
   function executeFile() {
-    const input = document.getElementById('fileInput');
     const status = document.getElementById('execFileStatus');
-    if (!input.files.length) { status.textContent = '⚠ Please select an HTML file first.'; return; }
-    status.textContent = '';
+    const input = document.getElementById('fileInput');
     const file = input.files[0];
+    if (!file) {
+      status.textContent = "Please select a file to execute.";
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = e => {
-      const blob = new Blob([e.target.result], { type: 'text/html' });
-      window.open(URL.createObjectURL(blob), '_blank');
+    reader.onload = function(e) {
+      const html = e.target.result;
+      try {
+        const blob = new Blob([html], { type: "text/html" });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+        status.textContent = "File executed in new tab.";
+      } catch (err) {
+        status.textContent = "Failed to execute file.";
+      }
+      setTimeout(() => { status.textContent = ""; }, 3000);
+    };
+    reader.onerror = function() {
+      status.textContent = "Failed to read file.";
     };
     reader.readAsText(file);
+    input.value = '';
   }
 
   // ── Website Fetcher ──
   function fetchSite() {
-    let url = document.getElementById('urlInput').value.trim();
+    const input = document.getElementById('urlInput');
     const status = document.getElementById('fetchStatus');
-
-    if (!url) { status.textContent = '⚠ Please enter a URL.'; return; }
-    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-
-    status.textContent = '⏳ Fetching...';
-
-    const win = window.open('', '_blank');
+    let url = input.value.trim();
+    const win = window.open();
     if (!win) {
-      status.textContent = '❌ Pop-up blocked — please allow pop-ups.';
+      status.textContent = "Popup blocked! Please allow popups for this site.";
       return;
     }
-
+    if (!url) {
+      status.textContent = "Please enter a URL.";
+      win.document.write('<h1>Please enter a URL.</h1>');
+      win.document.close();
+      return;
+    }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    status.textContent = "Fetching and opening: " + url;
     fetch(url)
-      .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
+      .then(res => {
+        if (!res.ok) throw new Error('Fetch failed. Status: ' + res.status);
+        return res.text();
       })
       .then(html => {
-        const injected = injectBase(html, url);
-        const blob = new Blob([injected], { type: 'text/html' });
+        const fixedHtml = injectBase(html, url);
+        const blob = new Blob([fixedHtml], { type: "text/html" });
         const blobUrl = URL.createObjectURL(blob);
-        win.location.replace(blobUrl);
-        status.textContent = '✅ Opened!';
+        win.location = blobUrl;
+        status.textContent = "Opened in new tab!";
       })
-      .catch(function() {
-        // Fallback: wrap the URL in an iframe blob
-        openAsIframeBlob(win, url);
-        status.textContent = '✅ Opened (via iframe fallback)!';
+      .catch(e => {
+        win.document.open();
+        win.document.write('<h1>Failed to fetch content.</h1><pre>' + e.message + '</pre>');
+        win.document.close();
+        status.textContent = "Failed to fetch.\nError: " + e.message;
       });
+    setTimeout(() => { status.textContent = ""; }, 3500);
+    input.value = '';
   }
 
   // ── Attach button handlers (avoids inline onclick for blob-context compat) ──
